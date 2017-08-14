@@ -1,5 +1,7 @@
 <!DOCTYPE html>
 <head>
+<title>JS Robots!</title>
+
 <style>
 .player {
 	position: absolute;
@@ -17,19 +19,8 @@
 <div id='container'></div>
 
 <script src="https://d3js.org/d3.v4.min.js"></script>
+
 <script>
-function* moves(io){
-	while (true){
-		yield io.move(Math.random() * 365);
-	}
-}
-
-function* moves2(io){
-	while (true){
-		yield io.move(120);
-	}
-}
-
 var players = [];
 
 var nextPlayerId = 1;
@@ -46,8 +37,16 @@ function addPlayer(generator){
 
 	var io = {
 		move(degrees){
-			return { command: 'move', degrees };
-		}
+			if (typeof degrees === 'number'){
+				this.current.move = degrees;
+			}
+			else {
+				this.current.move = null;
+			}
+
+			return this;
+		},
+		current: {}
 	};
 
 	player.io = io;
@@ -55,50 +54,66 @@ function addPlayer(generator){
 	players.push(player);
 }
 
-addPlayer(moves);
-addPlayer(moves2);
-
 function timeout(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+function constrainPosition(max, actual){
+	if (actual > max){
+		return max;
+	}
+	else if (actual < 0){
+		return 0;
+	}
+	else {
+		return actual;
+	}
+}
+
 async function run(){
+	const speed = 10;
+
 	while (true){
 		var startingPositions =
 			players
-			.map(p => {
-				return {
-					id: p.id,
-					position: Object.assign({}, p.position)
-				};
-			});
+			.map(p => Object.freeze({
+				id: p.id,
+				position: Object.freeze(Object.assign({}, p.position))
+			}));
+
+		var container = d3.select('#container');
 
 		for (var player of players){
-			console.log(player);
+			player.io.positions = startingPositions;
+			player.io.arena = {
+				width: window.innerWidth,
+				height: window.innerHeight
+			};
 
-			var command = player.iterator.next().value;
-			console.log(command);
+			var io = player.iterator.next().value;
 
-			switch (command.command){
-				case 'move':
-					var speed = 10;
-					player.position.x += speed * Math.cos(command.degrees * Math.PI / 180);
-					player.position.y += speed * Math.sin(command.degrees * Math.PI / 180);
-					break;
+			if (typeof io.current.move === 'number'){
+				let degrees = io.current.move;
+				player.position.x = constrainPosition(player.io.arena.width, player.position.x + (speed * Math.cos(degrees * Math.PI / 180)));
+				player.position.y = constrainPosition(player.io.arena.height, player.position.y + (speed * Math.sin(degrees * Math.PI / 180)));
 			}
 
-			console.log(`player ${player.id}: x: ${player.position.x}, y: ${player.position.y}`);
+			//console.log(`player ${player.id}: x: ${player.position.x}, y: ${player.position.y}`);
 		}
 
 		var sel =
-			d3.select('#container')
+			container
 			.selectAll('div.player')
 			.data(players);
 
 		sel.enter()
 			.append('div')
-			.attr('class', 'player')
-			.text(d => d.id);
+				.attr('class', 'player')
+				.text(d => d.id)
+				.style('opacity', 1e-6)
+			.transition()
+				.duration(1000)
+				.style('opacity', 1.0);
 
 		sel
 			.style('left', d => d.position.x + 'px')
@@ -109,6 +124,38 @@ async function run(){
 }
 
 run();
+
+/*
+game code above   ^^^^^^^^
+player code below vvvvvvvv
+*/
+
+
+
+function* samplePlayer1(io){
+	var angle = 0;
+	while (true){
+		angle += Math.random() * 90 - 45;
+		io.move(angle);
+
+		yield io;
+	}
+}
+
+function* samplePlayer2(io){
+	while (true){
+		console.log(io.arena);
+		yield io.move(120);
+	}
+}
+
+addPlayer(samplePlayer1);
+addPlayer(samplePlayer1);
+addPlayer(samplePlayer1);
+addPlayer(samplePlayer1);
+addPlayer(samplePlayer1);
+addPlayer(samplePlayer1);
+
 </script>
 </body>
 </html>
