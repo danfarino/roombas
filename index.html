@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<head>
+<style>
+.player {
+	position: absolute;
+	background-color: blue;
+	width: 50px;
+	height: 50px;
+}
+</style>
+</head>
+<body>
+
+<div id='container'></div>
+
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script>
+function* moves(io){
+	while (true){
+		yield io.move(Math.random() * 365);
+	}
+}
+
+function* moves2(io){
+	while (true){
+		yield io.move(120);
+	}
+}
+
+var players = [];
+
+var nextPlayerId = 1;
+function addPlayer(generator){
+	var player = {
+		id: nextPlayerId++,
+		position: {
+			x: Math.floor(Math.random() * window.innerWidth),
+			y: Math.floor(Math.random() * window.innerHeight)
+		},
+	};
+
+	var speed = 10;
+
+	var io = {
+		move(degrees){
+			return { command: 'move', degrees };
+		}
+	};
+
+	player.io = io;
+	player.iterator = generator(io);
+	players.push(player);
+}
+
+addPlayer(moves);
+addPlayer(moves2);
+
+function timeout(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function run(){
+	while (true){
+		var startingPositions =
+			players
+			.map(p => {
+				return {
+					id: p.id,
+					position: Object.assign({}, p.position)
+				};
+			});
+
+		for (var player of players){
+			console.log(player);
+
+			var command = player.iterator.next().value;
+			console.log(command);
+
+			switch (command.command){
+				case 'move':
+					var speed = 10;
+					player.position.x += speed * Math.cos(command.degrees * Math.PI / 180);
+					player.position.y += speed * Math.sin(command.degrees * Math.PI / 180);
+					break;
+			}
+
+			console.log(`player ${player.id}: x: ${player.position.x}, y: ${player.position.y}`);
+		}
+
+		var sel =
+			d3.select('#container')
+			.selectAll('div.player')
+			.data(players);
+
+		sel.enter()
+			.append('div')
+			.attr('class', 'player');
+
+		sel
+			.style('left', d => d.position.x + 'px')
+			.style('top', d => d.position.y + 'px');
+
+		await timeout(100);
+	}
+}
+
+run();
+</script>
+</body>
+</html>
