@@ -3,20 +3,36 @@
 <title>JS Robots!</title>
 
 <style>
-.player {
-	position: absolute;
-	background-color: blue;
-	font-size: 24pt;
-	color: white;
-	font-weight: bold;
-	padding: 0.2em;
+.player circle {
+	fill: blue;
+}
+
+.player text {
+	fill: white;
+	font-size: 32px;
 	font-family: monospace;
+	text-decoration: underline;
+}
+
+#container {
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    width: 100vw;
+    height: 100vh;
+}
+
+button {
+	position: fixed;
 }
 </style>
 </head>
 <body>
 
-<div id='container'></div>
+<svg id='container'>
+</svg>
+
+<button id='stop'>Stop</button>
 
 <script src="https://d3js.org/d3.v4.min.js"></script>
 
@@ -33,20 +49,18 @@ function addPlayer(generator){
 		},
 	};
 
-	var speed = 10;
-
 	var io = {
 		move(degrees){
-			if (typeof degrees === 'number'){
-				this.current.move = degrees;
-			}
-			else {
-				this.current.move = null;
-			}
-
+			this.current.move = degrees;
 			return this;
 		},
-		current: {}
+		rotate(degrees){
+			this.current.rotate = degrees;
+			return this;
+		},
+		current: {
+			rotate: 0
+		}
 	};
 
 	player.io = io;
@@ -59,21 +73,28 @@ function timeout(ms) {
 }
 
 function constrainPosition(max, actual){
+	const padding = 30;
+	max -= padding;
+
 	if (actual > max){
 		return max;
 	}
-	else if (actual < 0){
-		return 0;
+	else if (actual < padding){
+		return padding;
 	}
 	else {
 		return actual;
 	}
 }
 
+var stopped = false;
+document.getElementById('stop').addEventListener('click', () => stopped = true);
+
 async function run(){
 	const speed = 10;
+	const interval = 100;
 
-	while (true){
+	while (!stopped){
 		var startingPositions =
 			players
 			.map(p => Object.freeze({
@@ -81,7 +102,35 @@ async function run(){
 				position: Object.freeze(Object.assign({}, p.position))
 			}));
 
-		var container = d3.select('#container');
+		var container =
+			d3.select('#container')
+			//.attr(
+
+		var sel =
+			container
+			.selectAll('.player')
+			.data(players);
+
+		var g =
+			sel.enter()
+			.append('g')
+				.attr('class', 'player')
+				.style('opacity', 1e-6)
+				.each(function(d){ d.element = this });
+
+		g.append('circle')
+			.attr('r', 30)
+			.attr('cx', 5)
+			.attr('cy', 5);
+
+		g.append('text')
+			.attr('text-anchor', 'middle')
+			.attr('transform', 'translate(0, 10)')
+			.text(d => d.id);
+
+		g.transition('fadein')
+			.duration(1000)
+			.style('opacity', 1.0);
 
 		for (var player of players){
 			player.io.positions = startingPositions;
@@ -94,33 +143,34 @@ async function run(){
 
 			if (typeof io.current.move === 'number'){
 				let degrees = io.current.move;
-				player.position.x = constrainPosition(player.io.arena.width, player.position.x + (speed * Math.cos(degrees * Math.PI / 180)));
-				player.position.y = constrainPosition(player.io.arena.height, player.position.y + (speed * Math.sin(degrees * Math.PI / 180)));
+				let bbox = player.element.getBoundingClientRect();
+				player.position.x = Math.floor(
+					constrainPosition(
+						player.io.arena.width,
+						player.position.x + (speed * Math.cos(degrees * Math.PI / 180))
+					)
+				);
+
+				player.position.y = Math.floor(
+					constrainPosition(
+						player.io.arena.height,
+						player.position.y + (speed * Math.sin(degrees * Math.PI / 180))
+					)
+				);
 			}
 
-			//console.log(`player ${player.id}: x: ${player.position.x}, y: ${player.position.y}`);
+			//console.log(`player ${player.id}: ${JSON.stringify(player.io.current)}`);
 		}
 
-		var sel =
-			container
-			.selectAll('div.player')
-			.data(players);
-
-		sel.enter()
-			.append('div')
-				.attr('class', 'player')
-				.text(d => d.id)
-				.style('opacity', 1e-6)
-			.transition()
-				.duration(1000)
-				.style('opacity', 1.0);
-
 		sel
-			.style('left', d => d.position.x + 'px')
-			.style('top', d => d.position.y + 'px');
+			// .transition('rotation')
+			// 	.duration(interval)
+				.attr('transform', d => `translate(${d.position.x},${d.position.y}) rotate(${Math.floor(d.io.current.rotate)})`)
 
-		await timeout(100);
+		await timeout(interval);
 	}
+
+	console.warn('stopped');
 }
 
 run();
@@ -135,10 +185,8 @@ player code below vvvvvvvv
 function* samplePlayer1(io){
 	var angle = 0;
 	while (true){
-		angle += Math.random() * 90 - 45;
-		io.move(angle);
-
-		yield io;
+		angle += Math.random() * 50 - 25;
+		yield io.move(angle).rotate(angle);
 	}
 }
 
