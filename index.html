@@ -158,14 +158,12 @@ async function run(){
 					)
 				);
 			}
-
-			//console.log(`player ${player.id}: ${JSON.stringify(player.io.current)}`);
 		}
 
 		sel
-			// .transition('rotation')
-			// 	.duration(interval)
-				.attr('transform', d => `translate(${d.position.x},${d.position.y}) rotate(${Math.floor(d.io.current.rotate)})`)
+			.transition()
+			.duration(interval)
+			.attr('transform', d => `translate(${d.position.x},${d.position.y}) rotate(${Math.floor(d.io.current.rotate)})`)
 
 		await timeout(interval);
 	}
