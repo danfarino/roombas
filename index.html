@@ -22,11 +22,20 @@
 }
 
 .player text {
+	font-family: monospace;	
+}
+
+.player text.label {
 	fill: white;
 	font-weight: bold;
 	font-size: 32px;
-	font-family: monospace;
 	text-decoration: underline;
+}
+
+.player text.energy {
+	fill: red;
+	font-size: 24px;
+	transform: translate(40px, 40px);
 }
 
 #container {
@@ -48,8 +57,9 @@
 <script>
 const roombaRadius = 60;
 const headRadius = roombaRadius / 9;
-const startingEnergy = 100;
-const shockDamage = 5;
+const startingEnergy = 1000;
+const shockDamage = 100;
+const healingRate = 3;
 const speed = 10;
 const frameRate = Math.floor(1000 / 30);
 const players = [];
@@ -123,21 +133,31 @@ async function run(){
 				.attr('class', 'player')
 				.style('opacity', 0);
 
-		g.append('circle')
+		const innerG = g.append('g').attr('class', 'inner');
+
+		innerG.append('circle')
 			.attr('class', 'body')
 			.attr('r', roombaRadius)
 			.attr('cx', 0)
 			.attr('cy', 0);
 
-		g.append('circle')
+		innerG.append('circle')
 			.attr('class', 'head')
 			.attr('r', headRadius)
 			.attr('cx', roombaRadius)
 			.attr('cy', 0);
 
-		g.append('text')
+		innerG.append('text')
+			.attr('class', 'label')
 			.attr('text-anchor', 'middle')
 			.attr('alignment-baseline', 'middle')
+			.text(d => d.id);
+
+		g.append('text')
+			.attr('class', 'energy')
+			.attr('text-anchor', 'middle')
+			.attr('alignment-baseline', 'middle')
+			//.attr('transform', 'translate(10, 10)')
 			.text(d => d.id);
 
 		g.transition('fadein')
@@ -174,7 +194,8 @@ async function run(){
 			}
 		}
 
-		dataJoin.attr('transform', player => `translate(${player.position.x},${player.position.y}) rotate(${Math.floor(player.io.faceAngle)})`);
+		container.selectAll('.player').attr('transform', player => `translate(${player.position.x},${player.position.y})`);
+		container.selectAll('.inner').attr('transform', player => `rotate(${Math.floor(player.io.faceAngle)})`);
 		dataJoin.classed('shock', player => player.io.shock);
 		dataJoin.classed('shocked', player => {
 				let shocked = false;
@@ -195,6 +216,10 @@ async function run(){
 				return shocked;
 		});
 
+		dataJoin.each(function(player){
+			d3.select(this).select('.energy').text(player.energy);
+		});
+
 		await timeout(frameRate);
 
 		let i = 0;
@@ -205,6 +230,7 @@ async function run(){
 			}
 			else {
 				i++;
+				player.energy = Math.min(startingEnergy, player.energy + healingRate);
 			}
 		}
 	}
