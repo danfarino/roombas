@@ -54,7 +54,7 @@ const speed = 10;
 const frameRate = Math.floor(1000 / 30);
 const players = [];
 
-var nextPlayerId = 1;
+var nextPlayerId = 10;
 
 function addPlayer(generator){
 	const player = {
@@ -112,10 +112,9 @@ async function run(){
 			height: window.innerHeight
 		});
 
-		const dataJoin = container.selectAll('.player').data(players);
+		const dataJoin = container.selectAll('.player').data(players, d => d.id);
 
-		dataJoin.exit()
-			.remove();
+		dataJoin.exit().remove();
 
 		const g =
 			dataJoin.enter()
@@ -206,6 +205,7 @@ async function run(){
 			const player = players[i];
 			if (player.energy <= 0){
 				players.splice(i, 1);
+				console.log('died', player);
 			}
 			else {
 				i++;
@@ -230,10 +230,11 @@ player code below ↓↓↓↓↓
 
 
 function* samplePlayer1(io){
+	const angerLevel = 0.1;
 	while (true){
 		io.faceAngle += Math.random() * 20 - 10;
 		io.moveAngle = io.faceAngle;
-		if (Math.random() < 0.5){
+		if (Math.random() < angerLevel){
 			io.shock = true;
 		}
 		yield;
