@@ -100,7 +100,7 @@ const container = d3.select('#container');
 
 async function run(){
 	while (!stopped){
-		const startingPositions = Object.freeze(
+		const playerPositions = Object.freeze(
 			players
 			.map(p => Object.freeze({
 				id: p.id,
@@ -150,7 +150,7 @@ async function run(){
 			io.moveAngle = null;
 			io.shock = false;
 
-			io.positions = startingPositions;
+			io.positions = playerPositions;
 			io.arena = arena;
 
 			io.energy = player.energy; // so the player can see their own energy count
