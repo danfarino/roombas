@@ -108,8 +108,16 @@ function constrainPosition(max, actual){
     }
 }
 
+function calculateAngle(x1, y1, x2, y2){
+	return Math.atan2(y1 - y2, x1 - x2);
+}
+
+function calculateDistance(x1, y1, x2, y2){
+	return Math.sqrt(((x2 - x1)**2) + ((y2 - y1)**2));
+}
+
 function calculateOverlap(x1, y1, r1, x2, y2, r2){
-    const distance = Math.sqrt(((x2 - x1)**2) + ((y2 - y1)**2));
+    const distance = calculateDistance(x1, y1, x2, y2);
     if (distance >= r1 + r2){
     	return 0;
     }
@@ -232,7 +240,7 @@ async function run(){
 	        				collisionDetected = true;
 
 	        				const move = overlapAmount / 2 + 1;
-	        				const angle = Math.atan2(pos.y - otherPos.y, pos.x - otherPos.x);
+	        				const angle = calculateAngle(pos.x, pos.y, otherPos.x, otherPos.y);
 	        				pos.x += move * Math.cos(angle);
 	        				pos.y += move * Math.sin(angle);
 	        				otherPos.x -= move * Math.cos(angle);
@@ -326,6 +334,51 @@ function* samplePlayer1(io){
 for (var i = 0; i < 50; i++){
     addPlayer(samplePlayer1);
 }
+
+function* samplePlayer2(io){
+	while (true){
+		const others = [];
+		for (var otherPlayerId in io.positions){
+			if (otherPlayerId != io.playerId){
+				const otherPosition = io.positions[otherPlayerId];
+				others.push({
+					distance: calculateDistance(io.position.x, io.position.y, otherPosition.x, otherPosition.y),
+					position: otherPosition
+				});
+			}
+		}
+
+		if (others.length == 0){
+			// victory dance
+			while (true){
+				for (var i = 0; i < 120; i++){
+					io.faceAngle += 5;
+					yield;
+				}
+
+				for (var i = 0; i < 120; i++){
+					io.faceAngle -= 5;
+					yield;
+				}
+			}
+		}
+
+		others.sort((a, b) => a.distance - b.distance);
+
+		const enemy = others[0];
+
+		io.faceAngle = calculateAngle(enemy.position.x, enemy.position.y, io.position.x, io.position.y) * (180/Math.PI);
+		io.moveAngle = io.faceAngle;
+
+		if (enemy.distance < roombaRadius * 2.5){
+			io.shock = true;
+		}
+
+		yield;
+	}
+}
+
+addPlayer(samplePlayer2);
 </script>
 </body>
 </html>
