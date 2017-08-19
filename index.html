@@ -230,24 +230,35 @@ async function run(){
         let collisionDetected;
         do {
         	collisionDetected = false;
-	        for (const player of players){
-	        	for (const other of players){
-	        		if (player.id < other.id){
-	        			const pos = player.position;
-	        			const otherPos = other.position;
-	        			const overlapAmount = calculateOverlap(pos.x, pos.y, roombaRadius, otherPos.x, otherPos.y, roombaRadius);
-	        			if (overlapAmount > 0){
-	        				collisionDetected = true;
 
-	        				const move = overlapAmount / 2 + 1;
-	        				const angle = calculateAngle(pos.x, pos.y, otherPos.x, otherPos.y);
-	        				pos.x += move * Math.cos(angle);
-	        				pos.y += move * Math.sin(angle);
-	        				otherPos.x -= move * Math.cos(angle);
-	        				otherPos.y -= move * Math.sin(angle);
-	        			}
+	        var quad = d3.quadtree()
+	        	.x(player => player.position.x)
+	        	.y(player => player.position.y)
+	        	.addAll(players);
+
+	        for (const player of players){
+	        	const pos = player.position;
+	        	quad.visit(function(node, x0, y0, x1, y1){
+	        		if (!node.length){
+		        		do {
+			        		const otherPlayer = node.data;
+			        		if (otherPlayer.id != player.id){
+			        			const otherPos = otherPlayer.position;
+			        			const overlapAmount = calculateOverlap(pos.x, pos.y, roombaRadius, otherPos.x, otherPos.y, roombaRadius);
+			        			if (overlapAmount > 0){
+			        				collisionDetected = true;
+			        				const move = overlapAmount / 2 + 1;
+			        				const angle = calculateAngle(pos.x, pos.y, otherPos.x, otherPos.y);
+			        				pos.x += move * Math.cos(angle);
+			        				pos.y += move * Math.sin(angle);
+			        				otherPos.x -= move * Math.cos(angle);
+			        				otherPos.y -= move * Math.sin(angle);
+			        			}
+			        		}
+		        		} while (node = node.next);
 	        		}
-	        	}
+	        		return pos.x - roombaRadius >= x1 || pos.y - roombaRadius >= y1 || pos.x + roombaRadius < x0 || pos.y + roombaRadius < y0; 
+	        	});
 	        }
 	  	} while (collisionDetected);
 
