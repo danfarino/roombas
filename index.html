@@ -23,7 +23,7 @@
 
 .player text {
 	font-family: monospace;	
-    text-shadow: 1px 1px 2px black;
+    text-shadow: 1px 1px 2px rgb(100, 100, 100);
 }
 
 .player text.label {
@@ -54,7 +54,7 @@
 <script src="https://d3js.org/d3.v4.min.js"></script>
 
 <svg id='container'></svg>
-<button id='stop' style='position: fixed'>Stop</button>
+<button id='stop' style='position: fixed; opacity: 0.5'>Stop</button>
 
 <script>
 const roombaRadius = 60;
@@ -230,8 +230,8 @@ async function run(){
 				players.splice(i, 1);
 			}
 			else {
+                player.energy = Math.min(startingEnergy, player.energy + healingRate);
 				i++;
-				player.energy = Math.min(startingEnergy, player.energy + healingRate);
 			}
 		}
 	}
