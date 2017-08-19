@@ -131,7 +131,7 @@ async function run(){
 		for (let player of players){
 			const io = player.io;
 
-			io.move = null;
+			io.moveAngle = null;
 			io.positions = startingPositions;
 			io.arena = arena;
 
@@ -142,8 +142,8 @@ async function run(){
 				io.angle = 0;
 			}
 
-			if (typeof io.move === 'number'){
-				const degrees = io.move;
+			if (typeof io.moveAngle === 'number'){
+				const degrees = io.moveAngle;
 
 				player.position.x =
 					constrainPosition(
@@ -183,14 +183,14 @@ player code below ↓↓↓↓↓
 function* samplePlayer1(io){
 	while (true){
 		io.angle += Math.random() * 20 - 10;
-		io.move = io.angle;
+		io.moveAngle = io.angle;
 		yield;
 	}
 }
 
 function* samplePlayer2(io){
 	while (true){
-		io.move = 10;
+		io.moveAngle = 10;
 		yield;
 	}
 }
