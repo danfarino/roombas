@@ -109,20 +109,20 @@ function constrainPosition(max, actual){
 }
 
 function calculateAngle(x1, y1, x2, y2){
-	return Math.atan2(y1 - y2, x1 - x2);
+    return Math.atan2(y1 - y2, x1 - x2);
 }
 
 function calculateDistance(x1, y1, x2, y2){
-	return Math.sqrt(((x2 - x1)**2) + ((y2 - y1)**2));
+    return Math.sqrt(((x2 - x1)**2) + ((y2 - y1)**2));
 }
 
 function calculateOverlap(x1, y1, r1, x2, y2, r2){
     const distance = calculateDistance(x1, y1, x2, y2);
     if (distance >= r1 + r2){
-    	return 0;
+        return 0;
     }
     else {
-    	return (r1 + r2) - distance;
+        return (r1 + r2) - distance;
     }
 }
 
@@ -200,11 +200,11 @@ async function run(){
             io.playerId = player.id;
 
             try {
-            	player.iterator.next();            	
+                player.iterator.next();             
             }
             catch (e){
-            	console.error(`player ${player.id} threw an error`, e);
-            	player.energy = 0;
+                console.error(`player ${player.id} threw an error`, e);
+                player.energy = 0;
             }
 
             if (io.shock){
@@ -229,38 +229,38 @@ async function run(){
 
         let collisionDetected;
         do {
-        	collisionDetected = false;
+            collisionDetected = false;
 
-	        var quad = d3.quadtree()
-	        	.x(player => player.position.x)
-	        	.y(player => player.position.y)
-	        	.addAll(players);
+            var quad = d3.quadtree()
+                .x(player => player.position.x)
+                .y(player => player.position.y)
+                .addAll(players);
 
-	        for (const player of players){
-	        	const pos = player.position;
-	        	quad.visit(function(node, x0, y0, x1, y1){
-	        		if (!node.length){
-		        		do {
-			        		const otherPlayer = node.data;
-			        		if (otherPlayer.id != player.id){
-			        			const otherPos = otherPlayer.position;
-			        			const overlapAmount = calculateOverlap(pos.x, pos.y, roombaRadius, otherPos.x, otherPos.y, roombaRadius);
-			        			if (overlapAmount > 0){
-			        				collisionDetected = true;
-			        				const move = overlapAmount / 2 + (Math.random() * 5);
-			        				const angle = calculateAngle(pos.x, pos.y, otherPos.x, otherPos.y);
-			        				pos.x += move * Math.cos(angle);
-			        				pos.y += move * Math.sin(angle);
-			        				otherPos.x -= move * Math.cos(angle);
-			        				otherPos.y -= move * Math.sin(angle);
-			        			}
-			        		}
-		        		} while (node = node.next);
-	        		}
-	        		return pos.x - roombaRadius >= x1 || pos.y - roombaRadius >= y1 || pos.x + roombaRadius < x0 || pos.y + roombaRadius < y0; 
-	        	});
-	        }
-	  	} while (collisionDetected);
+            for (const player of players){
+                const pos = player.position;
+                quad.visit(function(node, x0, y0, x1, y1){
+                    if (!node.length){
+                        do {
+                            const otherPlayer = node.data;
+                            if (otherPlayer.id != player.id){
+                                const otherPos = otherPlayer.position;
+                                const overlapAmount = calculateOverlap(pos.x, pos.y, roombaRadius, otherPos.x, otherPos.y, roombaRadius);
+                                if (overlapAmount > 0){
+                                    collisionDetected = true;
+                                    const move = overlapAmount / 2 + (Math.random() * 5);
+                                    const angle = calculateAngle(pos.x, pos.y, otherPos.x, otherPos.y);
+                                    pos.x += move * Math.cos(angle);
+                                    pos.y += move * Math.sin(angle);
+                                    otherPos.x -= move * Math.cos(angle);
+                                    otherPos.y -= move * Math.sin(angle);
+                                }
+                            }
+                        } while (node = node.next);
+                    }
+                    return pos.x - roombaRadius >= x1 || pos.y - roombaRadius >= y1 || pos.x + roombaRadius < x0 || pos.y + roombaRadius < y0; 
+                });
+            }
+        } while (collisionDetected);
 
         dataJoin.attr('transform', player => `translate(${player.position.x},${player.position.y})`);
 
@@ -297,8 +297,8 @@ async function run(){
 
         dataJoin.each(function(player){
             d3.select(this)
-            	.select('.energy')
-            	.text(player.energy < 0 ? '' : Math.trunc(player.energy));
+                .select('.energy')
+                .text(player.energy < 0 ? '' : Math.trunc(player.energy));
         });
 
         await timeout(frameRate);
@@ -349,33 +349,33 @@ for (var i = 0; i < 20; i++){
 function* smarterRoomba(io){
     const strikingDistance = roombaRadius * 2.2;
     let lastIdAttacked = null;
-	while (true){
-		const others = [];
-		for (var otherPlayerId in io.positions){
-			if (otherPlayerId != io.playerId){
-				const otherPosition = io.positions[otherPlayerId];
-				others.push({
+    while (true){
+        const others = [];
+        for (var otherPlayerId in io.positions){
+            if (otherPlayerId != io.playerId){
+                const otherPosition = io.positions[otherPlayerId];
+                others.push({
                     playerId: otherPlayerId,
-					distance: calculateDistance(io.position.x, io.position.y, otherPosition.x, otherPosition.y),
-					position: otherPosition
-				});
-			}
-		}
+                    distance: calculateDistance(io.position.x, io.position.y, otherPosition.x, otherPosition.y),
+                    position: otherPosition
+                });
+            }
+        }
 
-		if (others.length == 0){
-			// victory dance
-			while (true){
-				for (var i = 0; i < 120; i++){
-					io.faceAngle += 5;
-					yield;
-				}
+        if (others.length == 0){
+            // victory dance
+            while (true){
+                for (var i = 0; i < 120; i++){
+                    io.faceAngle += 5;
+                    yield;
+                }
 
-				for (var i = 0; i < 120; i++){
-					io.faceAngle -= 5;
-					yield;
-				}
-			}
-		}
+                for (var i = 0; i < 120; i++){
+                    io.faceAngle -= 5;
+                    yield;
+                }
+            }
+        }
 
         var enemy = null;
 
@@ -391,24 +391,24 @@ function* smarterRoomba(io){
             enemy = others[0];
         }
 
-		io.faceAngle = calculateAngle(enemy.position.x, enemy.position.y, io.position.x, io.position.y) * (180/Math.PI);
+        io.faceAngle = calculateAngle(enemy.position.x, enemy.position.y, io.position.x, io.position.y) * (180/Math.PI);
 
-		if (io.energy > Math.random() * 100 + 200){
-			io.moveAngle = io.faceAngle;
-			if (enemy.distance < strikingDistance){
-				io.shock = true;
+        if (io.energy > Math.random() * 100 + 200){
+            io.moveAngle = io.faceAngle;
+            if (enemy.distance < strikingDistance){
+                io.shock = true;
                 lastIdAttacked = enemy.playerId;
-			}
-			yield;
-		}
-		else {
-			const c = Math.random() * 3 + 1;
-			for (var i = 0; i < c; i++){
-				io.moveAngle = io.faceAngle - 180;
-				yield;
-			}
-		}
-	}
+            }
+            yield;
+        }
+        else {
+            const c = Math.random() * 3 + 1;
+            for (var i = 0; i < c; i++){
+                io.moveAngle = io.faceAngle - 180;
+                yield;
+            }
+        }
+    }
 }
 
 addPlayer(smarterRoomba);
