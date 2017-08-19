@@ -165,9 +165,7 @@ async function run(){
             .attr('alignment-baseline', 'middle')
             .text(d => d.id);
 
-        g.append('text')
-            .attr('class', 'energy')
-            .text(d => d.id);
+        g.append('text').attr('class', 'energy');
 
         g.transition()
             .duration(2000)
