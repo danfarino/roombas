@@ -13,6 +13,7 @@
 
 .player text {
 	fill: white;
+	font-weight: bold;
 	font-size: 32px;
 	font-family: monospace;
 	text-decoration: underline;
@@ -116,7 +117,7 @@ async function run(){
 
 		g.append('text')
 			.attr('text-anchor', 'middle')
-			.attr('transform', 'translate(0, 8)')
+			.attr('alignment-baseline', 'middle')
 			.text(d => d.id);
 
 		g.transition('fadein')
