@@ -80,6 +80,10 @@ function constrainPosition(max, actual){
 	}
 }
 
+function areOverlapping(x1, y1, r1, x2, y2, r2){
+	return Math.sqrt(((x2 - x1)**2) + ((y2 - y1)**2)) < r1 + r2;
+}
+
 var stopped = false;
 document.getElementById('stop').addEventListener('click', () => stopped = true);
 
@@ -115,9 +119,11 @@ async function run(){
 			.attr('cx', 0)
 			.attr('cy', 0);
 
+		const headRadius = roombaRadius / 8;
+
 		g.append('circle')
 			.attr('class', 'head')
-			.attr('r', roombaRadius / 8)
+			.attr('r', headRadius)
 			.attr('cx', roombaRadius)
 			.attr('cy', 0);
 
@@ -127,7 +133,7 @@ async function run(){
 			.text(d => d.id);
 
 		g.transition('fadein')
-			.duration(1000)
+			.duration(2000)
 			.style('opacity', 1.0);
 
 		for (let player of players){
