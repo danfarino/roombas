@@ -290,7 +290,7 @@ async function run(){
 
                 if (calculateOverlap(pos.x, pos.y, roombaRadius, otherPos.x, otherPos.y, headRadius)){
                     shocked = true;
-                    player.energy -= shockDamage;
+                    player.energy -= shockDamage + (Math.random() * 0.02 * shockDamage);
                 }
             }
 
@@ -350,7 +350,7 @@ for (var i = 0; i < 50; i++){
 
 function* smarterRoomba(io){
     const strikingDistance = roombaRadius * 2.2;
-    const lowEnergy = startingEnergy / 20;
+    const lowEnergy = startingEnergy * 0.2;
  
     let lastIdAttacked = null;
  
