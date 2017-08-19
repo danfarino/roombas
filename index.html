@@ -42,7 +42,7 @@ button {
 <script>
 const roombaRadius = 30;
 const speed = 10;
-const frameRate = Math.trunc(1000 / 30);
+const frameRate = Math.floor(1000 / 30);
 const players = [];
 
 var nextPlayerId = 1;
@@ -143,7 +143,7 @@ async function run(){
 
 			if (typeof io.move === 'number'){
 				const degrees = io.move;
-				const bbox = player.element.getBoundingClientRect();
+
 				player.position.x = Math.floor(
 					constrainPosition(
 						io.arena.width,
