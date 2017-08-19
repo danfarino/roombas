@@ -7,6 +7,10 @@
 	fill: rgb(192, 192, 255);
 }
 
+.player.shocked .body {
+	fill: orange;
+}
+
 .player .head {
 	fill: rgb(100, 100, 255);
 }
@@ -20,7 +24,7 @@
 .player text {
 	fill: white;
 	font-weight: bold;
-	font-size: 20px;
+	font-size: 32px;
 	font-family: monospace;
 	text-decoration: underline;
 }
@@ -42,7 +46,10 @@
 <button id='stop' style='position: fixed'>Stop</button>
 
 <script>
-const roombaRadius = 20;
+const roombaRadius = 36;
+const headRadius = roombaRadius / 9;
+const startingEnergy = 100;
+const shockDamage = 5;
 const speed = 10;
 const frameRate = Math.floor(1000 / 30);
 const players = [];
@@ -56,8 +63,9 @@ function addPlayer(generator){
 			x: Math.floor(Math.random() * window.innerWidth),
 			y: Math.floor(Math.random() * window.innerHeight)
 		},
+		energy: startingEnergy,
 		io: {
-			faceAngle: 0
+			faceAngle: 0,
 		}
 	};
 
@@ -106,6 +114,9 @@ async function run(){
 
 		const dataJoin = container.selectAll('.player').data(players);
 
+		dataJoin.exit()
+			.remove();
+
 		const g =
 			dataJoin.enter()
 			.append('g')
@@ -118,8 +129,6 @@ async function run(){
 			.attr('r', roombaRadius)
 			.attr('cx', 0)
 			.attr('cy', 0);
-
-		const headRadius = roombaRadius / 8;
 
 		g.append('circle')
 			.attr('class', 'head')
@@ -143,6 +152,7 @@ async function run(){
 			io.positions = startingPositions;
 			io.arena = arena;
 			io.shock = false;
+			io.energy = player.energy; // so the player can see their own energy count
 
 			player.iterator.next();
 
@@ -168,10 +178,39 @@ async function run(){
 			}
 		}
 
-		dataJoin.attr('transform', d => `translate(${d.position.x},${d.position.y}) rotate(${Math.floor(d.io.faceAngle)})`)
-		dataJoin.classed('shock', d => d.io.shock);
+		dataJoin.attr('transform', player => `translate(${player.position.x},${player.position.y}) rotate(${Math.floor(player.io.faceAngle)})`);
+		dataJoin.classed('shock', player => player.io.shock);
+		dataJoin.classed('shocked', player => {
+				let shocked = false;
+				for (let other of players){
+					if (!other.io.shock || other.id == player.id){
+						continue;
+					}
+
+					const pos = player.position;
+					const otherPos = other.position;
+
+					if (areOverlapping(pos.x, pos.y, roombaRadius, otherPos.x, otherPos.y, roombaRadius)){
+						shocked	= true;
+						player.energy -= shockDamage;
+					}
+				}
+
+				return shocked;
+		});
 
 		await timeout(frameRate);
+
+		let i = 0;
+		while (i < players.length){
+			const player = players[i];
+			if (player.energy <= 0){
+				players.splice(i, 1);
+			}
+			else {
+				i++;
+			}
+		}
 	}
 
 	console.warn('stopped');
@@ -194,7 +233,7 @@ function* samplePlayer1(io){
 	while (true){
 		io.faceAngle += Math.random() * 20 - 10;
 		io.moveAngle = io.faceAngle;
-		if (Math.random() < 0.1){
+		if (Math.random() < 0.5){
 			io.shock = true;
 		}
 		yield;
