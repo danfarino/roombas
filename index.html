@@ -282,7 +282,7 @@ async function run(){
             	.text(player.energy < 0 ? '' : Math.trunc(player.energy));
         });
 
-        await new Promise(requestAnimationFrame);
+        await timeout(frameRate);
 
         let i = 0;
         while (i < players.length){
@@ -298,6 +298,10 @@ async function run(){
     }
 
     console.warn('stopped');
+}
+
+function timeout(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 run();
