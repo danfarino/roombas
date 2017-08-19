@@ -149,7 +149,7 @@ async function run(){
         dataJoin.exit()
             .classed('dead', true)
             .transition()
-                .duration(1500)
+                .duration(1000)
                 .style('opacity', 0)
                 .remove();
 
@@ -247,7 +247,7 @@ async function run(){
 			        			const overlapAmount = calculateOverlap(pos.x, pos.y, roombaRadius, otherPos.x, otherPos.y, roombaRadius);
 			        			if (overlapAmount > 0){
 			        				collisionDetected = true;
-			        				const move = overlapAmount / 2 + 1;
+			        				const move = overlapAmount / 2 + (Math.random() * 5);
 			        				const angle = calculateAngle(pos.x, pos.y, otherPos.x, otherPos.y);
 			        				pos.x += move * Math.cos(angle);
 			        				pos.y += move * Math.sin(angle);
@@ -342,17 +342,20 @@ function* stupidRoomba(io){
     }
 }
 
-for (var i = 0; i < 1000; i++){
+for (var i = 0; i < 20; i++){
     addPlayer(stupidRoomba);
 }
 
 function* smarterRoomba(io){
+    const strikingDistance = roombaRadius * 2.2;
+    let lastIdAttacked = null;
 	while (true){
 		const others = [];
 		for (var otherPlayerId in io.positions){
 			if (otherPlayerId != io.playerId){
 				const otherPosition = io.positions[otherPlayerId];
 				others.push({
+                    playerId: otherPlayerId,
 					distance: calculateDistance(io.position.x, io.position.y, otherPosition.x, otherPosition.y),
 					position: otherPosition
 				});
@@ -374,16 +377,27 @@ function* smarterRoomba(io){
 			}
 		}
 
-		others.sort((a, b) => a.distance - b.distance);
+        var enemy = null;
 
-		const enemy = others[0];
+        if (lastIdAttacked){
+            const lastEnemy = others.find(other => other.playerId == lastIdAttacked);
+            if (lastEnemy && lastEnemy.distance < strikingDistance){
+                enemy = lastEnemy;
+            }
+        }
+
+        if (!enemy){
+            others.sort((a, b) => a.distance - b.distance);
+            enemy = others[0];
+        }
 
 		io.faceAngle = calculateAngle(enemy.position.x, enemy.position.y, io.position.x, io.position.y) * (180/Math.PI);
 
 		if (io.energy > Math.random() * 100 + 200){
 			io.moveAngle = io.faceAngle;
-			if (enemy.distance < roombaRadius * 2.2){
+			if (enemy.distance < strikingDistance){
 				io.shock = true;
+                lastIdAttacked = enemy.playerId;
 			}
 			yield;
 		}
