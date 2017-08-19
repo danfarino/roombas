@@ -135,6 +135,11 @@ async function run(){
 
 			player.iterator.next();
 
+			// security check
+			if (typeof io.angle !== 'number'){
+				io.angle = 0;
+			}
+
 			if (typeof io.move === 'number'){
 				const degrees = io.move;
 				const bbox = player.element.getBoundingClientRect();
