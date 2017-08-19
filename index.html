@@ -3,8 +3,12 @@
 <title>JS Robots!</title>
 
 <style>
-.player circle {
-	fill: blue;
+.player .body {
+	fill: rgb(192, 192, 255);
+}
+
+.player .head {
+	fill: rgb(100, 100, 255);
 }
 
 .player text {
@@ -92,7 +96,7 @@ document.getElementById('stop').addEventListener('click', () => stopped = true);
 
 async function run(){
 	const speed = 10;
-	const interval = 100;
+	const interval = Math.trunc(1000 / 30);
 
 	while (!stopped){
 		var startingPositions =
@@ -119,9 +123,16 @@ async function run(){
 				.each(function(d){ d.element = this });
 
 		g.append('circle')
+			.attr('class', 'body')
 			.attr('r', 30)
-			.attr('cx', 5)
-			.attr('cy', 5);
+			.attr('cx', 0)
+			.attr('cy', 0);
+
+		g.append('circle')
+			.attr('class', 'head')
+			.attr('r', 5)
+			.attr('cx', 30)
+			.attr('cy', 0);
 
 		g.append('text')
 			.attr('text-anchor', 'middle')
@@ -160,10 +171,7 @@ async function run(){
 			}
 		}
 
-		sel
-			.transition()
-			.duration(interval)
-			.attr('transform', d => `translate(${d.position.x},${d.position.y}) rotate(${Math.floor(d.io.current.rotate)})`)
+		sel.attr('transform', d => `translate(${d.position.x},${d.position.y}) rotate(${Math.floor(d.io.current.rotate)})`)
 
 		await timeout(interval);
 	}
