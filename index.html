@@ -129,10 +129,10 @@ async function run(){
 
 			io.move = null;
 			io.positions = startingPositions;
-			io.arena = {
+			io.arena = Object.freeze({
 				width: window.innerWidth,
 				height: window.innerHeight
-			};
+			});
 
 			player.iterator.next();
 
