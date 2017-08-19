@@ -199,7 +199,13 @@ async function run(){
             io.position = playerPositions[player.id];
             io.playerId = player.id;
 
-            player.iterator.next();
+            try {
+            	player.iterator.next();            	
+            }
+            catch (e){
+            	console.error(`player ${player.id} threw an error`, e);
+            	player.energy = 0;
+            }
 
             if (io.shock){
                 if (player.energy <= shockEnergyCost){
