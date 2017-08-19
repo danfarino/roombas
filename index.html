@@ -140,6 +140,7 @@ async function run(){
                 position: Object.freeze(Object.assign({}, player.position)),
                 faceAngle: player.io.faceAngle
             }));
+        Object.freeze(publicPlayerInfos);
 
         const arena = Object.freeze({
             width: window.innerWidth,
