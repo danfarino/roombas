@@ -12,14 +12,14 @@
 }
 
 .player .body {
-	fill: rgb(20, 20, 255);
+    fill: rgb(20, 20, 255);
     stroke: rgb(0, 0, 255);
     stroke-width: 2px;
     opacity: 0.25;
 }
 
 .player.shocked .body {
-	fill: orange;
+    fill: orange;
 }
 
 .player.dead .body {
@@ -27,31 +27,31 @@
 }
 
 .player .head {
-	fill: rgb(100, 100, 255);
+    fill: rgb(100, 100, 255);
 }
 
 .player.shock .head {
-	fill: yellow;
-	stroke: yellow;
-	stroke-width: 4px;
+    fill: yellow;
+    stroke: yellow;
+    stroke-width: 4px;
 }
 
 .player text {
-	font-family: monospace;	
+    font-family: monospace; 
     text-shadow: 1px 1px 2px rgb(111, 111, 111);
 }
 
 .player text.label {
-	fill: white;
-	font-weight: bold;
-	font-size: 32px;
-	text-decoration: underline;
+    fill: white;
+    font-weight: bold;
+    font-size: 32px;
+    text-decoration: underline;
 }
 
 .player text.energy {
-	fill: rgb(55, 55, 55);
-	font-size: 24px;
-	transform: translate(10px, 45px);
+    fill: rgb(55, 55, 55);
+    font-size: 24px;
+    transform: translate(10px, 45px);
 }
 </style>
 </head>
@@ -76,40 +76,40 @@ const players = [];
 var nextPlayerId = 10;
 
 function addPlayer(generator){
-	const player = {
-		id: nextPlayerId++,
-		energy: startingEnergy,
-		position: {
-			x: Math.floor(Math.random() * window.innerWidth),
-			y: Math.floor(Math.random() * window.innerHeight)
-		},
-		io: {
-			faceAngle: 0,
-		}
-	};
+    const player = {
+        id: nextPlayerId++,
+        energy: startingEnergy,
+        position: {
+            x: Math.floor(Math.random() * window.innerWidth),
+            y: Math.floor(Math.random() * window.innerHeight)
+        },
+        io: {
+            faceAngle: 0,
+        }
+    };
 
-	player.iterator = generator(player.io);
+    player.iterator = generator(player.io);
 
-	players.push(player);
+    players.push(player);
 }
 
 function constrainPosition(max, actual){
-	const padding = roombaRadius;
-	max -= padding;
+    const padding = roombaRadius;
+    max -= padding;
 
-	if (actual > max){
-		return max;
-	}
-	else if (actual < padding){
-		return padding;
-	}
-	else {
-		return actual;
-	}
+    if (actual > max){
+        return max;
+    }
+    else if (actual < padding){
+        return padding;
+    }
+    else {
+        return actual;
+    }
 }
 
 function areOverlapping(x1, y1, r1, x2, y2, r2){
-	return Math.sqrt(((x2 - x1)**2) + ((y2 - y1)**2)) < r1 + r2; // pythagorean
+    return Math.sqrt(((x2 - x1)**2) + ((y2 - y1)**2)) < r1 + r2; // pythagorean
 }
 
 var stopped = false;
@@ -118,19 +118,19 @@ document.getElementById('stop').addEventListener('click', () => stopped = true);
 const container = d3.select('#container');
 
 async function run(){
-	while (!stopped){
-		const playerPositions = {};
+    while (!stopped){
+        const playerPositions = {};
         for (const player of players){
             playerPositions[player.id] = Object.freeze(Object.assign({}, player.position))
         }
         Object.freeze(playerPositions);
 
-		const arena = Object.freeze({
-			width: window.innerWidth,
-			height: window.innerHeight
-		});
+        const arena = Object.freeze({
+            width: window.innerWidth,
+            height: window.innerHeight
+        });
 
-		const dataJoin = container.selectAll('.player:not(.dead)').data(players, d => d.id);
+        const dataJoin = container.selectAll('.player:not(.dead)').data(players, d => d.id);
 
         dataJoin.exit()
             .classed('dead', true)
@@ -139,55 +139,55 @@ async function run(){
                 .style('opacity', 0)
                 .remove();
 
-		const g =
-			dataJoin.enter()
-			.append('g')
-				.attr('class', 'player')
-				.style('opacity', 0);
+        const g =
+            dataJoin.enter()
+            .append('g')
+                .attr('class', 'player')
+                .style('opacity', 0);
 
-		const innerG = g.append('g').attr('class', 'inner');
+        const innerG = g.append('g').attr('class', 'inner');
 
-		innerG.append('circle')
-			.attr('class', 'body')
-			.attr('r', roombaRadius)
-			.attr('cx', 0)
-			.attr('cy', 0);
+        innerG.append('circle')
+            .attr('class', 'body')
+            .attr('r', roombaRadius)
+            .attr('cx', 0)
+            .attr('cy', 0);
 
-		innerG.append('circle')
-			.attr('class', 'head')
-			.attr('r', headRadius)
-			.attr('cx', roombaRadius)
-			.attr('cy', 0);
+        innerG.append('circle')
+            .attr('class', 'head')
+            .attr('r', headRadius)
+            .attr('cx', roombaRadius)
+            .attr('cy', 0);
 
-		innerG.append('text')
-			.attr('class', 'label')
-			.attr('text-anchor', 'middle')
-			.attr('alignment-baseline', 'middle')
-			.text(d => d.id);
+        innerG.append('text')
+            .attr('class', 'label')
+            .attr('text-anchor', 'middle')
+            .attr('alignment-baseline', 'middle')
+            .text(d => d.id);
 
-		g.append('text')
-			.attr('class', 'energy')
-			.text(d => d.id);
+        g.append('text')
+            .attr('class', 'energy')
+            .text(d => d.id);
 
-		g.transition()
-			.duration(2000)
-			.style('opacity', 1);
+        g.transition()
+            .duration(2000)
+            .style('opacity', 1);
 
-		for (const player of players){
-			const io = player.io;
+        for (const player of players){
+            const io = player.io;
 
-			io.moveAngle = null;
-			io.shock = false;
+            io.moveAngle = null;
+            io.shock = false;
 
-			io.positions = playerPositions;
-			io.arena = arena;
+            io.positions = playerPositions;
+            io.arena = arena;
 
             // read-only self-visibility for the player
-			io.energy = player.energy;
+            io.energy = player.energy;
             io.position = playerPositions[player.id];
             io.playerId = player.id;
 
-			player.iterator.next();
+            player.iterator.next();
 
             if (io.shock){
                 if (player.energy <= shockEnergy){
@@ -198,25 +198,25 @@ async function run(){
                 }
             }
 
-			if (typeof io.moveAngle === 'number'){
-				const degrees = io.moveAngle;
+            if (typeof io.moveAngle === 'number'){
+                const degrees = io.moveAngle;
 
-				player.position.x =
-					constrainPosition(
-						io.arena.width,
-						player.position.x + (speed * Math.cos(degrees * Math.PI / 180))
-					);
+                player.position.x =
+                    constrainPosition(
+                        io.arena.width,
+                        player.position.x + (speed * Math.cos(degrees * Math.PI / 180))
+                    );
 
-				player.position.y =
-					constrainPosition(
-						io.arena.height,
-						player.position.y + (speed * Math.sin(degrees * Math.PI / 180))
-					);
-			}
-		}
+                player.position.y =
+                    constrainPosition(
+                        io.arena.height,
+                        player.position.y + (speed * Math.sin(degrees * Math.PI / 180))
+                    );
+            }
+        }
 
-		dataJoin.attr('transform', player => `translate(${player.position.x},${player.position.y})`);
-		
+        dataJoin.attr('transform', player => `translate(${player.position.x},${player.position.y})`);
+        
         dataJoin.selectAll('.inner')
             .attr('transform', player => `rotate(${Math.floor(player.io.faceAngle)})`)
             .each(function(player){
@@ -227,47 +227,47 @@ async function run(){
                 player.headPosition = pos.matrixTransform(this.getCTM()); 
             });
 
-		dataJoin.classed('shock', player => player.io.shock);
+        dataJoin.classed('shock', player => player.io.shock);
 
-		dataJoin.classed('shocked', player => {
-			let shocked = false;
-			for (const other of players){
-				if (!other.io.shock || other.id == player.id){
-					continue;
-				}
+        dataJoin.classed('shocked', player => {
+            let shocked = false;
+            for (const other of players){
+                if (!other.io.shock || other.id == player.id){
+                    continue;
+                }
 
-				const pos = player.position;
-				const otherPos = other.headPosition;
+                const pos = player.position;
+                const otherPos = other.headPosition;
 
-				if (areOverlapping(pos.x, pos.y, roombaRadius, otherPos.x, otherPos.y, headRadius)){
-					shocked	= true;
-					player.energy -= shockDamage;
-				}
-			}
+                if (areOverlapping(pos.x, pos.y, roombaRadius, otherPos.x, otherPos.y, headRadius)){
+                    shocked = true;
+                    player.energy -= shockDamage;
+                }
+            }
 
-			return shocked;
-		});
+            return shocked;
+        });
 
-		dataJoin.each(function(player){
-			d3.select(this).select('.energy').text(player.energy);
-		});
+        dataJoin.each(function(player){
+            d3.select(this).select('.energy').text(player.energy);
+        });
 
-		await timeout(frameRate);
+        await timeout(frameRate);
 
-		let i = 0;
-		while (i < players.length){
-			const player = players[i];
-			if (player.energy <= 0){
-				players.splice(i, 1);
-			}
-			else {
+        let i = 0;
+        while (i < players.length){
+            const player = players[i];
+            if (player.energy <= 0){
+                players.splice(i, 1);
+            }
+            else {
                 player.energy = Math.min(startingEnergy, player.energy + healingRate);
-				i++;
-			}
-		}
-	}
+                i++;
+            }
+        }
+    }
 
-	console.warn('stopped');
+    console.warn('stopped');
 }
 
 function timeout(ms) {
@@ -284,20 +284,20 @@ player code below ↓↓↓↓↓
 
 
 function* samplePlayer1(io){
-	const angerLevel = 0.1;
-	while (true){
-		io.faceAngle += Math.random() * 20 - 10;
-		io.moveAngle = io.faceAngle;
-		if (Math.random() < angerLevel){
-			io.shock = true;
+    const angerLevel = 0.1;
+    while (true){
+        io.faceAngle += Math.random() * 20 - 10;
+        io.moveAngle = io.faceAngle;
+        if (Math.random() < angerLevel){
+            io.shock = true;
             debugger;
-		}
-		yield;
-	}
+        }
+        yield;
+    }
 }
 
 for (var i = 0; i < 50; i++){
-		addPlayer(samplePlayer1);
+    addPlayer(samplePlayer1);
 }
 </script>
 </body>
