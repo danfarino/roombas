@@ -133,11 +133,13 @@ const container = d3.select('#container');
 
 async function run(){
     while (!stopped){
-        const playerPositions = {};
-        for (const player of players){
-            playerPositions[player.id] = Object.freeze(Object.assign({}, player.position))
-        }
-        Object.freeze(playerPositions);
+        const publicPlayerInfos =
+            players
+            .map(player => Object.freeze({
+                id: player.id,
+                position: Object.freeze(Object.assign({}, player.position)),
+                faceAngle: player.io.faceAngle
+            }));
 
         const arena = Object.freeze({
             width: window.innerWidth,
@@ -191,12 +193,12 @@ async function run(){
             io.moveAngle = null;
             io.shock = false;
 
-            io.positions = playerPositions;
+            io.players = publicPlayerInfos;
             io.arena = arena;
 
             // read-only self-visibility for the player
             io.energy = player.energy;
-            io.position = playerPositions[player.id];
+            io.position = players.find(p => p.id == player.id).position;
             io.playerId = player.id;
 
             try {
@@ -354,13 +356,11 @@ function* smarterRoomba(io){
  
     while (true){
         const others = [];
-        for (var otherPlayerId in io.positions){
-            if (otherPlayerId != io.playerId){
-                const otherPosition = io.positions[otherPlayerId];
+        for (const otherPlayer of io.players){
+            if (otherPlayer.id != io.playerId){
                 others.push({
-                    playerId: otherPlayerId,
-                    distance: calculateDistance(io.position.x, io.position.y, otherPosition.x, otherPosition.y),
-                    position: otherPosition
+                    distance: calculateDistance(io.position.x, io.position.y, otherPlayer.position.x, otherPlayer.position.y),
+                    player: otherPlayer
                 });
             }
         }
@@ -383,7 +383,7 @@ function* smarterRoomba(io){
         var enemy = null;
 
         if (lastIdAttacked){
-            const lastEnemy = others.find(other => other.playerId == lastIdAttacked);
+            const lastEnemy = others.find(other => other.player.id == lastIdAttacked);
             if (lastEnemy && lastEnemy.distance < strikingDistance){
                 enemy = lastEnemy;
             }
@@ -394,7 +394,7 @@ function* smarterRoomba(io){
             enemy = others[0];
         }
 
-        io.faceAngle = calculateAngle(enemy.position.x, enemy.position.y, io.position.x, io.position.y) * (180/Math.PI);
+        io.faceAngle = calculateAngle(enemy.player.position.x, enemy.player.position.y, io.position.x, io.position.y) * (180/Math.PI);
 
         if (io.energy > (Math.random() * lowEnergy / 2) + lowEnergy){
             io.moveAngle = io.faceAngle;
