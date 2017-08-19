@@ -85,14 +85,18 @@ const container = d3.select('#container');
 
 async function run(){
 	while (!stopped){
-		const startingPositions =
-			Object.freeze(
-				players
-				.map(p => Object.freeze({
-					id: p.id,
-					position: Object.freeze(Object.assign({}, p.position))
-				}))
-			);
+		const startingPositions = Object.freeze(
+			players
+			.map(p => Object.freeze({
+				id: p.id,
+				position: Object.freeze(Object.assign({}, p.position))
+			}))
+		);
+
+		const arena = Object.freeze({
+			width: window.innerWidth,
+			height: window.innerHeight
+		});
 
 		const dataJoin = container.selectAll('.player').data(players);
 
@@ -129,10 +133,7 @@ async function run(){
 
 			io.move = null;
 			io.positions = startingPositions;
-			io.arena = Object.freeze({
-				width: window.innerWidth,
-				height: window.innerHeight
-			});
+			io.arena = arena;
 
 			player.iterator.next();
 
