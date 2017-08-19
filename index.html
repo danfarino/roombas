@@ -11,6 +11,12 @@
 	fill: rgb(100, 100, 255);
 }
 
+.player.shock .head {
+	fill: red;
+	stroke: red;
+	stroke-width: 4px;
+}
+
 .player text {
 	fill: white;
 	font-weight: bold;
@@ -130,6 +136,7 @@ async function run(){
 			io.moveAngle = null;
 			io.positions = startingPositions;
 			io.arena = arena;
+			io.shock = false;
 
 			player.iterator.next();
 
@@ -156,6 +163,7 @@ async function run(){
 		}
 
 		dataJoin.attr('transform', d => `translate(${d.position.x},${d.position.y}) rotate(${Math.floor(d.io.faceAngle)})`)
+		dataJoin.classed('shock', d => d.io.shock);
 
 		await timeout(frameRate);
 	}
@@ -180,6 +188,9 @@ function* samplePlayer1(io){
 	while (true){
 		io.faceAngle += Math.random() * 20 - 10;
 		io.moveAngle = io.faceAngle;
+		if (Math.random() < 0.1){
+			io.shock = true;
+		}
 		yield;
 	}
 }
