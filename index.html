@@ -68,7 +68,7 @@ const headRadius = roombaRadius / 9;
 const startingEnergy = 1000;
 const shockEnergy = 7;
 const shockDamage = 97;
-const healingRate = 2;
+const healingRate = 0.2;
 const speed = 10;
 const frameRate = Math.floor(1000 / 30);
 const players = [];
@@ -247,7 +247,7 @@ async function run(){
         });
 
         dataJoin.each(function(player){
-            d3.select(this).select('.energy').text(player.energy);
+            d3.select(this).select('.energy').text(player.energy < 0 ? '' : Math.trunc(player.energy));
         });
 
         await timeout(frameRate);
