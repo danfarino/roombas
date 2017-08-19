@@ -39,8 +39,9 @@ button {
 <button id='stop'>Stop</button>
 
 <script>
-const speed = 5;
-const interval = Math.trunc(1000 / 30);
+const roombaRadius = 30;
+const speed = 10;
+const frameRate = Math.trunc(1000 / 30);
 const players = [];
 
 var nextPlayerId = 1;
@@ -62,7 +63,7 @@ function addPlayer(generator){
 }
 
 function constrainPosition(max, actual){
-	const padding = 30;
+	const padding = roombaRadius;
 	max -= padding;
 
 	if (actual > max){
@@ -92,12 +93,10 @@ async function run(){
 				}))
 			);
 
-		const sel =
-			container.selectAll('.player')
-			.data(players);
+		const dataJoin = container.selectAll('.player').data(players);
 
 		const g =
-			sel.enter()
+			dataJoin.enter()
 			.append('g')
 				.attr('class', 'player')
 				.style('opacity', 1e-6)
@@ -105,19 +104,19 @@ async function run(){
 
 		g.append('circle')
 			.attr('class', 'body')
-			.attr('r', 30)
+			.attr('r', roombaRadius)
 			.attr('cx', 0)
 			.attr('cy', 0);
 
 		g.append('circle')
 			.attr('class', 'head')
 			.attr('r', 5)
-			.attr('cx', 30)
+			.attr('cx', roombaRadius)
 			.attr('cy', 0);
 
 		g.append('text')
 			.attr('text-anchor', 'middle')
-			.attr('transform', 'translate(0, 10)')
+			.attr('transform', 'translate(0, 8)')
 			.text(d => d.id);
 
 		g.transition('fadein')
@@ -155,9 +154,9 @@ async function run(){
 			}
 		}
 
-		sel.attr('transform', d => `translate(${d.position.x},${d.position.y}) rotate(${Math.floor(d.io.angle)})`)
+		dataJoin.attr('transform', d => `translate(${d.position.x},${d.position.y}) rotate(${Math.floor(d.io.angle)})`)
 
-		await timeout(interval);
+		await timeout(frameRate);
 	}
 
 	console.warn('stopped');
@@ -178,7 +177,7 @@ player code below vvvvvvvv
 
 function* samplePlayer1(io){
 	while (true){
-		io.angle += Math.random() * 50 - 25;
+		io.angle += Math.random() * 20 - 10;
 		io.move = io.angle;
 		yield;
 	}
