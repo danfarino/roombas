@@ -315,7 +315,7 @@ player code below ↓↓↓↓↓
 
 */
 
-function* samplePlayer1(io){
+function* stupidRoomba(io){
     const angerLevel = 0.1;
     while (true){
         io.faceAngle += Math.random() * 20 - 10;
@@ -325,11 +325,11 @@ function* samplePlayer1(io){
     }
 }
 
-for (var i = 0; i < 20; i++){
-    addPlayer(samplePlayer1);
+for (var i = 0; i < 10; i++){
+    addPlayer(stupidRoomba);
 }
 
-function* samplePlayer2(io){
+function* smarterRoomba(io){
 	while (true){
 		const others = [];
 		for (var otherPlayerId in io.positions){
@@ -362,21 +362,28 @@ function* samplePlayer2(io){
 		const enemy = others[0];
 
 		io.faceAngle = calculateAngle(enemy.position.x, enemy.position.y, io.position.x, io.position.y) * (180/Math.PI);
-		if (io.energy > 100){
-			io.moveAngle = io.faceAngle;			
+
+		if (io.energy > Math.random() * 100 + 200){
+			io.moveAngle = io.faceAngle;
 			if (enemy.distance < roombaRadius * 2.2){
 				io.shock = true;
 			}
+			yield;
 		}
 		else {
-			io.moveAngle = io.moveAngle - 180;
+			const c = Math.random() * 3 + 1;
+			for (var i = 0; i < c; i++){
+				io.moveAngle = io.faceAngle - 180;
+				yield;
+			}
 		}
-
-		yield;
 	}
 }
 
-addPlayer(samplePlayer2);
+addPlayer(smarterRoomba);
+addPlayer(smarterRoomba);
+addPlayer(smarterRoomba);
+addPlayer(smarterRoomba);
 </script>
 </body>
 </html>
