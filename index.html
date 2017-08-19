@@ -144,19 +144,17 @@ async function run(){
 			if (typeof io.move === 'number'){
 				const degrees = io.move;
 
-				player.position.x = Math.floor(
+				player.position.x =
 					constrainPosition(
 						io.arena.width,
 						player.position.x + (speed * Math.cos(degrees * Math.PI / 180))
-					)
-				);
+					);
 
-				player.position.y = Math.floor(
+				player.position.y =
 					constrainPosition(
 						io.arena.height,
 						player.position.y + (speed * Math.sin(degrees * Math.PI / 180))
-					)
-				);
+					);
 			}
 		}
 
