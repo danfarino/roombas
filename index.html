@@ -298,7 +298,7 @@ async function run(){
         dataJoin.each(function(player){
             d3.select(this)
                 .select('.energy')
-                .text(player.energy < 0 ? '' : Math.trunc(player.energy));
+                .text(player.energy <= 0 ? '' : Math.trunc(player.energy));
         });
 
         await timeout(frameRate);
