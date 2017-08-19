@@ -64,11 +64,11 @@
 
 <script>
 const roombaRadius = 60;
-const headRadius = roombaRadius / 9;
+const headRadius = roombaRadius / 8;
 const startingEnergy = 1000;
-const shockEnergy = 3;
-const shockDamage = 97;
-const healingRate = 0.2;
+const shockEnergyCost = 10;
+const shockDamage = 80;
+const healingRate = 5;
 const speed = 10;
 const frameRate = Math.floor(1000 / 30);
 const players = [];
@@ -202,29 +202,23 @@ async function run(){
             player.iterator.next();
 
             if (io.shock){
-                if (player.energy <= shockEnergy){
+                if (player.energy <= shockEnergyCost){
                     io.shock = false;
                 }
                 else{
-                    player.energy -= shockEnergy;
+                    player.energy -= shockEnergyCost;
                 }
             }
 
             if (typeof io.moveAngle === 'number'){
                 const degrees = io.moveAngle;
 
-                player.position.x =
-                    constrainPosition(
-                        io.arena.width,
-                        player.position.x + (speed * Math.cos(degrees * Math.PI / 180))
-                    );
-
-                player.position.y =
-                    constrainPosition(
-                        io.arena.height,
-                        player.position.y + (speed * Math.sin(degrees * Math.PI / 180))
-                    );
+                player.position.x += speed * Math.cos(degrees * Math.PI / 180);
+                player.position.y += speed * Math.sin(degrees * Math.PI / 180);
             }
+
+            player.position.x = constrainPosition(io.arena.width, player.position.x);
+            player.position.y = constrainPosition(io.arena.height, player.position.y);
         }
 
         let collisionDetected;
@@ -331,7 +325,7 @@ function* samplePlayer1(io){
     }
 }
 
-for (var i = 0; i < 50; i++){
+for (var i = 0; i < 20; i++){
     addPlayer(samplePlayer1);
 }
 
@@ -368,10 +362,14 @@ function* samplePlayer2(io){
 		const enemy = others[0];
 
 		io.faceAngle = calculateAngle(enemy.position.x, enemy.position.y, io.position.x, io.position.y) * (180/Math.PI);
-		io.moveAngle = io.faceAngle;
-
-		if (enemy.distance < roombaRadius * 2.5){
-			io.shock = true;
+		if (io.energy > 100){
+			io.moveAngle = io.faceAngle;			
+			if (enemy.distance < roombaRadius * 2.2){
+				io.shock = true;
+			}
+		}
+		else {
+			io.moveAngle = io.moveAngle - 180;
 		}
 
 		yield;
