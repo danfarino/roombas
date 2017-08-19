@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <head>
-<title>JS Robots!</title>
+<title>Roomba Battle</title>
 
 <style>
 .player .body {
@@ -33,47 +33,32 @@ button {
 </head>
 <body>
 
-<svg id='container'>
-</svg>
-
-<button id='stop'>Stop</button>
-
 <script src="https://d3js.org/d3.v4.min.js"></script>
 
+<svg id='container'></svg>
+<button id='stop'>Stop</button>
+
 <script>
-var players = [];
+const speed = 5;
+const interval = Math.trunc(1000 / 30);
+const players = [];
 
 var nextPlayerId = 1;
+
 function addPlayer(generator){
-	var player = {
+	const player = {
 		id: nextPlayerId++,
 		position: {
 			x: Math.floor(Math.random() * window.innerWidth),
 			y: Math.floor(Math.random() * window.innerHeight)
 		},
-	};
-
-	var io = {
-		move(degrees){
-			this.current.move = degrees;
-			return this;
-		},
-		rotate(degrees){
-			this.current.rotate = degrees;
-			return this;
-		},
-		current: {
-			rotate: 0
+		io: {
+			angle: 0
 		}
 	};
 
-	player.io = io;
-	player.iterator = generator(io);
+	player.iterator = generator(player.io);
 	players.push(player);
-}
-
-function timeout(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 function constrainPosition(max, actual){
@@ -94,28 +79,24 @@ function constrainPosition(max, actual){
 var stopped = false;
 document.getElementById('stop').addEventListener('click', () => stopped = true);
 
+const container = d3.select('#container');
+
 async function run(){
-	const speed = 10;
-	const interval = Math.trunc(1000 / 30);
-
 	while (!stopped){
-		var startingPositions =
-			players
-			.map(p => Object.freeze({
-				id: p.id,
-				position: Object.freeze(Object.assign({}, p.position))
-			}));
+		const startingPositions =
+			Object.freeze(
+				players
+				.map(p => Object.freeze({
+					id: p.id,
+					position: Object.freeze(Object.assign({}, p.position))
+				}))
+			);
 
-		var container =
-			d3.select('#container')
-			//.attr(
-
-		var sel =
-			container
-			.selectAll('.player')
+		const sel =
+			container.selectAll('.player')
 			.data(players);
 
-		var g =
+		const g =
 			sel.enter()
 			.append('g')
 				.attr('class', 'player')
@@ -143,40 +124,47 @@ async function run(){
 			.duration(1000)
 			.style('opacity', 1.0);
 
-		for (var player of players){
-			player.io.positions = startingPositions;
-			player.io.arena = {
+		for (let player of players){
+			const io = player.io;
+
+			io.move = null;
+			io.positions = startingPositions;
+			io.arena = {
 				width: window.innerWidth,
 				height: window.innerHeight
 			};
 
-			var io = player.iterator.next().value;
+			player.iterator.next();
 
-			if (typeof io.current.move === 'number'){
-				let degrees = io.current.move;
-				let bbox = player.element.getBoundingClientRect();
+			if (typeof io.move === 'number'){
+				const degrees = io.move;
+				const bbox = player.element.getBoundingClientRect();
 				player.position.x = Math.floor(
 					constrainPosition(
-						player.io.arena.width,
+						io.arena.width,
 						player.position.x + (speed * Math.cos(degrees * Math.PI / 180))
 					)
 				);
 
 				player.position.y = Math.floor(
 					constrainPosition(
-						player.io.arena.height,
+						io.arena.height,
 						player.position.y + (speed * Math.sin(degrees * Math.PI / 180))
 					)
 				);
 			}
 		}
 
-		sel.attr('transform', d => `translate(${d.position.x},${d.position.y}) rotate(${Math.floor(d.io.current.rotate)})`)
+		sel.attr('transform', d => `translate(${d.position.x},${d.position.y}) rotate(${Math.floor(d.io.angle)})`)
 
 		await timeout(interval);
 	}
 
 	console.warn('stopped');
+}
+
+function timeout(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 run();
@@ -189,17 +177,17 @@ player code below vvvvvvvv
 
 
 function* samplePlayer1(io){
-	var angle = 0;
 	while (true){
-		angle += Math.random() * 50 - 25;
-		yield io.move(angle).rotate(angle);
+		io.angle += Math.random() * 50 - 25;
+		io.move = io.angle;
+		yield;
 	}
 }
 
 function* samplePlayer2(io){
 	while (true){
-		console.log(io.arena);
-		yield io.move(120);
+		io.move = 10;
+		yield;
 	}
 }
 
