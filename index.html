@@ -227,14 +227,14 @@ async function run(){
             player.position.y = constrainPosition(io.arena.height, player.position.y);
         }
 
-        var quad = d3.quadtree()
-            .x(player => player.position.x)
-            .y(player => player.position.y)
-            .addAll(players);
-
         let collisionDetected;
         do {
         	collisionDetected = false;
+
+	        var quad = d3.quadtree()
+	        	.x(player => player.position.x)
+	        	.y(player => player.position.y)
+	        	.addAll(players);
 
 	        for (const player of players){
 	        	const pos = player.position;
@@ -249,17 +249,10 @@ async function run(){
 			        				collisionDetected = true;
 			        				const move = overlapAmount / 2 + 1;
 			        				const angle = calculateAngle(pos.x, pos.y, otherPos.x, otherPos.y);
-
-                                    quad.remove(player);
-                                    quad.remove(otherPlayer);
-
 			        				pos.x += move * Math.cos(angle);
 			        				pos.y += move * Math.sin(angle);
 			        				otherPos.x -= move * Math.cos(angle);
 			        				otherPos.y -= move * Math.sin(angle);
-
-                                    quad.add(player);
-                                    quad.add(otherPlayer);
 			        			}
 			        		}
 		        		} while (node = node.next);
