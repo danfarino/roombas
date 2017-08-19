@@ -46,7 +46,7 @@
 <button id='stop' style='position: fixed'>Stop</button>
 
 <script>
-const roombaRadius = 36;
+const roombaRadius = 60;
 const headRadius = roombaRadius / 9;
 const startingEnergy = 100;
 const shockDamage = 5;
@@ -202,7 +202,6 @@ async function run(){
 			const player = players[i];
 			if (player.energy <= 0){
 				players.splice(i, 1);
-				console.log('died', player);
 			}
 			else {
 				i++;
