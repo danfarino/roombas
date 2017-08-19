@@ -59,17 +59,18 @@ var nextPlayerId = 10;
 function addPlayer(generator){
 	const player = {
 		id: nextPlayerId++,
+		energy: startingEnergy,
 		position: {
 			x: Math.floor(Math.random() * window.innerWidth),
 			y: Math.floor(Math.random() * window.innerHeight)
 		},
-		energy: startingEnergy,
 		io: {
 			faceAngle: 0,
 		}
 	};
 
 	player.iterator = generator(player.io);
+
 	players.push(player);
 }
 
@@ -89,7 +90,7 @@ function constrainPosition(max, actual){
 }
 
 function areOverlapping(x1, y1, r1, x2, y2, r2){
-	return Math.sqrt(((x2 - x1)**2) + ((y2 - y1)**2)) < r1 + r2;
+	return Math.sqrt(((x2 - x1)**2) + ((y2 - y1)**2)) < r1 + r2; // pythagorean
 }
 
 var stopped = false;
@@ -120,8 +121,7 @@ async function run(){
 			dataJoin.enter()
 			.append('g')
 				.attr('class', 'player')
-				.style('opacity', 1e-6)
-				.each(function(d){ d.element = this });
+				.style('opacity', 0);
 
 		g.append('circle')
 			.attr('class', 'body')
@@ -142,23 +142,20 @@ async function run(){
 
 		g.transition('fadein')
 			.duration(2000)
-			.style('opacity', 1.0);
+			.style('opacity', 1);
 
 		for (let player of players){
 			const io = player.io;
 
 			io.moveAngle = null;
+			io.shock = false;
+
 			io.positions = startingPositions;
 			io.arena = arena;
-			io.shock = false;
+
 			io.energy = player.energy; // so the player can see their own energy count
 
 			player.iterator.next();
-
-			// security check
-			if (typeof io.faceAngle !== 'number'){
-				io.faceAngle = 0;
-			}
 
 			if (typeof io.moveAngle === 'number'){
 				const degrees = io.moveAngle;
@@ -241,19 +238,9 @@ function* samplePlayer1(io){
 	}
 }
 
-function* samplePlayer2(io){
-	while (true){
-		io.moveAngle = 10;
-		yield;
-	}
+for (var i = 0; i < 10; i++){
+		addPlayer(samplePlayer1);
 }
-
-addPlayer(samplePlayer1);
-addPlayer(samplePlayer1);
-addPlayer(samplePlayer1);
-addPlayer(samplePlayer1);
-addPlayer(samplePlayer1);
-addPlayer(samplePlayer1);
 
 </script>
 </body>
