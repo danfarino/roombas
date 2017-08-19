@@ -65,10 +65,10 @@
 <script>
 const roombaRadius = 60;
 const headRadius = roombaRadius / 8;
-const startingEnergy = 1000;
-const shockEnergyCost = 7;
-const shockDamage = 80;
-const healingRate = 5;
+const startingEnergy = 100;
+const shockEnergyCost = 0.7;
+const shockDamage = 2.5;
+const healingRate = 0.5;
 const speed = 10;
 const frameRate = Math.floor(1000 / 30);
 const players = [];
@@ -348,7 +348,10 @@ for (var i = 0; i < 50; i++){
 
 function* smarterRoomba(io){
     const strikingDistance = roombaRadius * 2.2;
+    const lowEnergy = startingEnergy / 20;
+ 
     let lastIdAttacked = null;
+ 
     while (true){
         const others = [];
         for (var otherPlayerId in io.positions){
@@ -393,7 +396,7 @@ function* smarterRoomba(io){
 
         io.faceAngle = calculateAngle(enemy.position.x, enemy.position.y, io.position.x, io.position.y) * (180/Math.PI);
 
-        if (io.energy > Math.random() * 100 + 200){
+        if (io.energy > (Math.random() * lowEnergy / 2) + lowEnergy){
             io.moveAngle = io.faceAngle;
             if (enemy.distance < strikingDistance){
                 io.shock = true;
