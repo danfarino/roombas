@@ -286,10 +286,7 @@ function* samplePlayer1(io){
     while (true){
         io.faceAngle += Math.random() * 20 - 10;
         io.moveAngle = io.faceAngle;
-        if (Math.random() < angerLevel){
-            io.shock = true;
-            debugger;
-        }
+        io.shock = Math.random() < angerLevel;
         yield;
     }
 }
