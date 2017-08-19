@@ -55,7 +55,7 @@ function addPlayer(generator){
 			y: Math.floor(Math.random() * window.innerHeight)
 		},
 		io: {
-			angle: 0
+			faceAngle: 0
 		}
 	};
 
@@ -138,8 +138,8 @@ async function run(){
 			player.iterator.next();
 
 			// security check
-			if (typeof io.angle !== 'number'){
-				io.angle = 0;
+			if (typeof io.faceAngle !== 'number'){
+				io.faceAngle = 0;
 			}
 
 			if (typeof io.moveAngle === 'number'){
@@ -159,7 +159,7 @@ async function run(){
 			}
 		}
 
-		dataJoin.attr('transform', d => `translate(${d.position.x},${d.position.y}) rotate(${Math.floor(d.io.angle)})`)
+		dataJoin.attr('transform', d => `translate(${d.position.x},${d.position.y}) rotate(${Math.floor(d.io.faceAngle)})`)
 
 		await timeout(frameRate);
 	}
@@ -182,8 +182,8 @@ player code below ↓↓↓↓↓
 
 function* samplePlayer1(io){
 	while (true){
-		io.angle += Math.random() * 20 - 10;
-		io.moveAngle = io.angle;
+		io.faceAngle += Math.random() * 20 - 10;
+		io.moveAngle = io.faceAngle;
 		yield;
 	}
 }
