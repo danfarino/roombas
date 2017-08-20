@@ -13,7 +13,7 @@
 
 #stop {
     position: fixed;
-    opacity: 0.5;    
+    opacity: 0.5;
 }
 
 .player .body {
@@ -206,7 +206,7 @@ async function run(){
             io.playerId = player.id;
 
             try {
-                player.iterator.next();             
+                player.iterator.next();
             }
             catch (e){
                 console.error(`player ${player.id} threw an error`, e);
@@ -263,7 +263,7 @@ async function run(){
                             }
                         } while (node = node.next);
                     }
-                    return pos.x - roombaRadius >= x1 || pos.y - roombaRadius >= y1 || pos.x + roombaRadius < x0 || pos.y + roombaRadius < y0; 
+                    return pos.x - roombaRadius >= x1 || pos.y - roombaRadius >= y1 || pos.x + roombaRadius < x0 || pos.y + roombaRadius < y0;
                 });
             }
         } while (collisionDetected);
@@ -345,9 +345,9 @@ function* stupidRoomba(io){
 function* smarterRoomba(io){
     const strikingDistance = roombaRadius * 2.2;
     const lowEnergy = startingEnergy * 0.2;
- 
+
     let lastIdAttacked = null;
- 
+
     while (true){
         const others = [];
         for (const otherPlayer of io.players){
@@ -408,7 +408,7 @@ function* smarterRoomba(io){
     }
 }
 
-for (let i = 0; i < 100; i++){
+for (let i = 0; i < 10; i++){
     addPlayer(stupidRoomba);
     addPlayer(smarterRoomba);
 }
