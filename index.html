@@ -54,17 +54,9 @@
 }
 
 .player text.energy {
-    fill: rgb(0, 200, 0);
+    fill: rgb(55, 55, 55);
     font-size: 24px;
     transform: translate(10px, 45px);
-}
-
-.player text.energy.low {
-    fill: red;
-}
-
-.player text.energy.medium {
-    fill: orange;
 }
 </style>
 </head>
@@ -316,8 +308,6 @@ async function run(){
             const energy = Math.ceil(player.energy);
             d3.select(this)
                 .select('.energy')
-                .classed('medium', player => player.energy > (startingEnergy * 0.25) && player.energy < (startingEnergy * 0.5))
-                .classed('low', player => player.energy < (startingEnergy * 0.25))
                 .text(energy <= 0 ? 0 : energy);
         });
 
