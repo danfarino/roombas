@@ -54,9 +54,17 @@
 }
 
 .player text.energy {
-    fill: rgb(77, 77, 77);
+    fill: rgb(0, 200, 0);
     font-size: 24px;
     transform: translate(10px, 45px);
+}
+
+.player text.energy.low {
+    fill: red;
+}
+
+.player text.energy.medium {
+    fill: orange;
 }
 </style>
 </head>
@@ -157,6 +165,7 @@ async function run(){
         dataJoin.exit()
             .classed('dead', true)
             .transition()
+                .ease(d3.easeCubic)
                 .duration(1000)
                 .style('opacity', 0)
                 .remove();
@@ -304,9 +313,12 @@ async function run(){
         });
 
         dataJoin.each(function(player){
+            const energy = Math.ceil(player.energy);
             d3.select(this)
                 .select('.energy')
-                .text(player.energy <= 0 ? '' : Math.trunc(player.energy));
+                .classed('medium', player => player.energy > (startingEnergy * 0.25) && player.energy < (startingEnergy * 0.5))
+                .classed('low', player => player.energy < (startingEnergy * 0.25))
+                .text(energy <= 0 ? 0 : energy);
         });
 
         await timeout(frameRate);
