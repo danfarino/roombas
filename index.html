@@ -11,6 +11,11 @@
     height: 100vh;
 }
 
+#stop {
+    position: fixed;
+    opacity: 0.5;    
+}
+
 .player .body {
     fill: rgb(20, 20, 255);
     stroke: rgb(0, 0, 255);
@@ -49,7 +54,7 @@
 }
 
 .player text.energy {
-    fill: rgb(55, 55, 55);
+    fill: rgb(77, 77, 77);
     font-size: 24px;
     transform: translate(10px, 45px);
 }
@@ -60,7 +65,7 @@
 <script src="https://d3js.org/d3.v4.min.js"></script>
 
 <svg id='container'></svg>
-<button id='stop' style='position: fixed; opacity: 0.5'>Stop</button>
+<button id='stop'>Stop</button>
 
 <script>
 const roombaRadius = 60;
