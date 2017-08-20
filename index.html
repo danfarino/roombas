@@ -234,7 +234,7 @@ async function run(){
         do {
             collisionDetected = false;
 
-            var quad = d3.quadtree()
+            const quad = d3.quadtree()
                 .x(player => player.position.x)
                 .y(player => player.position.y)
                 .addAll(players);
@@ -345,10 +345,6 @@ function* stupidRoomba(io){
     }
 }
 
-for (var i = 0; i < 50; i++){
-    addPlayer(stupidRoomba);
-}
-
 function* smarterRoomba(io){
     const strikingDistance = roombaRadius * 2.2;
     const lowEnergy = startingEnergy * 0.2;
@@ -369,19 +365,19 @@ function* smarterRoomba(io){
         if (others.length == 0){
             // victory dance
             while (true){
-                for (var i = 0; i < 120; i++){
+                for (let i = 0; i < 120; i++){
                     io.faceAngle += 5;
                     yield;
                 }
 
-                for (var i = 0; i < 120; i++){
+                for (let i = 0; i < 120; i++){
                     io.faceAngle -= 5;
                     yield;
                 }
             }
         }
 
-        var enemy = null;
+        let enemy = null;
 
         if (lastIdAttacked){
             const lastEnemy = others.find(other => other.player.id == lastIdAttacked);
@@ -407,7 +403,7 @@ function* smarterRoomba(io){
         }
         else {
             const c = Math.random() * 3 + 1;
-            for (var i = 0; i < c; i++){
+            for (let i = 0; i < c; i++){
                 io.moveAngle = io.faceAngle - 180;
                 yield;
             }
@@ -415,10 +411,10 @@ function* smarterRoomba(io){
     }
 }
 
-addPlayer(smarterRoomba);
-addPlayer(smarterRoomba);
-addPlayer(smarterRoomba);
-addPlayer(smarterRoomba);
+for (let i = 0; i < 30; i++){
+    addPlayer(stupidRoomba);
+    addPlayer(smarterRoomba);
+}
 </script>
 </body>
 </html>
