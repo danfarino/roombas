@@ -94,19 +94,17 @@ function addPlayer(generator){
     };
 
     player.iterator = generator(player.io);
-
     players.push(player);
 }
 
 function constrainPosition(max, actual){
-    const padding = roombaRadius;
-    max -= padding;
+    max -= roombaRadius;
 
     if (actual > max){
         return max;
     }
-    else if (actual < padding){
-        return padding;
+    else if (actual < roombaRadius){
+        return roombaRadius;
     }
     else {
         return actual;
@@ -138,14 +136,14 @@ const container = d3.select('#container');
 
 async function run(){
     while (!stopped){
-        const publicPlayerInfos =
+        const publicPlayerInfos = Object.freeze(
             players
             .map(player => Object.freeze({
                 id: player.id,
                 position: Object.freeze(Object.assign({}, player.position)),
                 faceAngle: player.io.faceAngle
-            }));
-        Object.freeze(publicPlayerInfos);
+            }))
+        );
 
         const arena = Object.freeze({
             width: window.innerWidth,
@@ -156,7 +154,7 @@ async function run(){
 
         dataJoin.exit()
             .classed('dead', true)
-            .style('opacity', 0.7)
+            .style('opacity', 0.6)
             .transition()
                 .duration(1000)
                 .style('opacity', 0)
@@ -167,6 +165,10 @@ async function run(){
             .append('g')
                 .attr('class', 'player')
                 .style('opacity', 0);
+
+        g.transition()
+            .duration(2000)
+            .style('opacity', 1);
 
         const innerG = g.append('g').attr('class', 'inner');
 
@@ -190,20 +192,15 @@ async function run(){
 
         g.append('text').attr('class', 'energy');
 
-        g.transition()
-            .duration(2000)
-            .style('opacity', 1);
-
         for (const player of players){
             const io = player.io;
 
             io.moveAngle = null;
             io.shock = false;
-
             io.players = publicPlayerInfos;
             io.arena = arena;
 
-            // read-only self-visibility for the player
+            // these are for read-only self-visibility for the player:
             io.energy = player.energy;
             io.position = players.find(p => p.id == player.id).position;
             io.playerId = player.id;
@@ -247,7 +244,7 @@ async function run(){
 
             for (const player of players){
                 const pos = player.position;
-                quad.visit(function(node, x0, y0, x1, y1){
+                quad.visit((node, x0, y0, x1, y1) => {
                     if (!node.length){
                         do {
                             const otherPlayer = node.data;
@@ -271,6 +268,7 @@ async function run(){
             }
         } while (collisionDetected);
 
+        dataJoin.classed('shock', player => player.io.shock);
         dataJoin.attr('transform', player => `translate(${player.position.x},${player.position.y})`);
 
         dataJoin.selectAll('.inner')
@@ -279,11 +277,8 @@ async function run(){
                 const pos = container.node().createSVGPoint();
                 pos.x = roombaRadius;
                 pos.y = 0;
-
                 player.headPosition = pos.matrixTransform(this.getCTM());
             });
-
-        dataJoin.classed('shock', player => player.io.shock);
 
         dataJoin.classed('shocked', player => {
             let shocked = false;
@@ -305,13 +300,10 @@ async function run(){
         });
 
         dataJoin.each(function(player){
-            const energy = Math.ceil(player.energy);
             d3.select(this)
                 .select('.energy')
-                .text(energy <= 0 ? 0 : energy);
+                .text(Math.max(0, Math.ceil(player.energy)));
         });
-
-        await timeout(frameRate);
 
         let i = 0;
         while (i < players.length){
@@ -324,13 +316,11 @@ async function run(){
                 i++;
             }
         }
+
+        await new Promise(resolve => setTimeout(resolve, frameRate));
     }
 
     console.warn('stopped');
-}
-
-function timeout(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 run();
@@ -388,7 +378,7 @@ function* smarterRoomba(io){
 
         if (lastIdAttacked){
             const lastEnemy = others.find(other => other.player.id == lastIdAttacked);
-            if (lastEnemy && lastEnemy.distance < strikingDistance){
+            if (lastEnemy && lastEnemy.distance < strikingDistance * 1.5){
                 enemy = lastEnemy;
             }
         }
