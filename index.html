@@ -156,8 +156,8 @@ async function run(){
 
         dataJoin.exit()
             .classed('dead', true)
+            .style('opacity', 0.7)
             .transition()
-                .ease(d3.easeCubic)
                 .duration(1000)
                 .style('opacity', 0)
                 .remove();
