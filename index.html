@@ -330,7 +330,7 @@ async function run(){
 }
 
 function timeout(ms) {
-    return new Promise(resolve => setTimeout(() => requestAnimationFrame(resolve), ms));
+    return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 run();
@@ -418,7 +418,7 @@ function* smarterRoomba(io){
     }
 }
 
-for (let i = 0; i < 30; i++){
+for (let i = 0; i < 100; i++){
     addPlayer(stupidRoomba);
     addPlayer(smarterRoomba);
 }
