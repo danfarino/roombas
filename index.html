@@ -274,7 +274,7 @@ async function run(){
         dataJoin.selectAll('.inner')
             .attr('transform', player => `rotate(${Math.floor(player.io.faceAngle)})`)
             .each(function(player){
-                const pos = container.node().createSVGPoint();
+                const pos = this.ownerSVGElement.createSVGPoint();
                 pos.x = roombaRadius;
                 pos.y = 0;
                 player.headPosition = pos.matrixTransform(this.getCTM());
