@@ -90,6 +90,7 @@ function addPlayer(generator){
         },
         io: {
             faceAngle: 0,
+            shockedBy: [],
         }
     };
 
@@ -281,22 +282,23 @@ async function run(){
             });
 
         dataJoin.classed('shocked', player => {
-            let shocked = false;
+            player.io.shockedBy = []
+
             for (const other of players){
                 if (!other.io.shock || other.id == player.id){
                     continue;
                 }
 
                 const pos = player.position;
-                const otherPos = other.headPosition;
+                const otherHeadPos = other.headPosition;
 
-                if (calculateOverlap(pos.x, pos.y, roombaRadius, otherPos.x, otherPos.y, headRadius)){
-                    shocked = true;
+                if (calculateOverlap(pos.x, pos.y, roombaRadius, otherHeadPos.x, otherHeadPos.y, headRadius)){
+                    player.io.shockedBy.push(other.id);
                     player.energy -= shockDamage + (Math.random() * 0.02 * shockDamage);
                 }
             }
 
-            return shocked;
+            return player.io.shockedBy.length > 0;
         });
 
         dataJoin.each(function(player){
@@ -339,6 +341,10 @@ function* stupidRoomba(io){
         io.moveAngle = io.faceAngle;
         io.shock = Math.random() < angerLevel;
         yield;
+
+        if (io.shockedBy.length > 0){           
+            console.log(`${io.playerId} shocked by ${io.shockedBy.join(', ')}`);
+        }
     }
 }
 
