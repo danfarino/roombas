@@ -204,7 +204,7 @@ async function run(){
 
             // these are for read-only self-visibility for the player:
             io.energy = player.energy;
-            io.position = players.find(p => p.id == player.id).position;
+            io.position = publicPlayerInfos.find(p => p.id == player.id).position;
             io.playerId = player.id;
 
             try {
