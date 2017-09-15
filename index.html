@@ -303,11 +303,9 @@ async function run(){
             return player.io.shockedBy.length > 0;
         });
 
-        dataJoin.each(function(player){
-            d3.select(this)
-                .select('.energy')
-                .text(Math.max(0, Math.ceil(player.energy)));
-        });
+        dataJoin
+            .selectAll('.energy')
+            .text(player => Math.max(0, Math.ceil(player.energy)));
 
         let i = 0;
         while (i < players.length){
