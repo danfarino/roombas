@@ -1,4 +1,4 @@
-smarterRoomba.callsign = 'Smarter';
+smarterRoomba.callsign = 'SMARTER';
 
 function* smarterRoomba(io){
     const strikingDistance = roombaRadius * 2.2;

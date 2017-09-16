@@ -92,6 +92,14 @@ const players = [];
 var nextPlayerId = 10;
 
 function addPlayer(generator){
+    let callsign = '';
+    if (generator.callsign){
+        if (!/^[A-Z0-9 ]{1,7}$/.test(generator.callsign)){
+            throw new Error(`Invalid callsign "${generator.callsign}"`);
+        }
+        callsign = generator.callsign;
+    }
+
     const player = {
         id: nextPlayerId++,
         energy: startingEnergy,
@@ -103,7 +111,7 @@ function addPlayer(generator){
             faceAngle: 0,
             shockedBy: [],
         },
-        callsign: generator.callsign ? String(generator.callsign).replace(/[^A-Za-z0-9]/g, '').substr(0, 7).toUpperCase() : ''
+        callsign
     };
 
     player.iterator = generator(player.io);
