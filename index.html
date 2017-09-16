@@ -216,6 +216,7 @@ async function run(){
             io.energy = player.energy;
             io.position = publicPlayerInfos.find(p => p.id == player.id).position;
             io.playerId = player.id;
+            io.callsign = player.callsign;
 
             try {
                 player.iterator.next();
