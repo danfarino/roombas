@@ -274,7 +274,7 @@ async function run(){
                                 const overlapAmount = calculateOverlap(pos.x, pos.y, roombaRadius, otherPos.x, otherPos.y, roombaRadius);
                                 if (overlapAmount > 0){
                                     collisionDetected = true;
-                                    const move = overlapAmount / 2 + (Math.random() * 5);
+                                    const move = overlapAmount / 2 + (Math.random() * 3);
                                     const angle = calculateAngle(pos.x, pos.y, otherPos.x, otherPos.y);
                                     pos.x += move * Math.cos(angle);
                                     pos.y += move * Math.sin(angle);
