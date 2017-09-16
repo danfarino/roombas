@@ -80,6 +80,7 @@
 
 <script>
 const roombaRadius = 60;
+const roombaDiameter = roombaRadius * 2;
 const headRadius = roombaRadius / 8;
 const startingEnergy = 100;
 const shockEnergyCost = 0.7;
@@ -284,7 +285,7 @@ async function run(){
                             }
                         } while (node = node.next);
                     }
-                    return pos.x - roombaRadius >= x1 || pos.y - roombaRadius >= y1 || pos.x + roombaRadius < x0 || pos.y + roombaRadius < y0;
+                    return pos.x - roombaDiameter > x1 || pos.y - roombaDiameter > y1 || pos.x + roombaDiameter < x0 || pos.y + roombaDiameter < y0;
                 });
             }
         } while (collisionDetected);
