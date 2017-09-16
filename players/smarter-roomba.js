@@ -9,7 +9,7 @@ function* smarterRoomba(io){
     while (true){
         const others = [];
         for (const otherPlayer of io.players){
-            if (otherPlayer.id != io.playerId){
+            if (otherPlayer.id != io.playerId && otherPlayer.callsign != io.callsign){
                 others.push({
                     distance: calculateDistance(io.position.x, io.position.y, otherPlayer.position.x, otherPlayer.position.y),
                     player: otherPlayer
